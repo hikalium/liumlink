@@ -1,0 +1,15 @@
+{
+  "name": "liumlink",
+  "description": "copy link for hikalium",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
