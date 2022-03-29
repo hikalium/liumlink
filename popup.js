@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const originalUrl = tabs[0].url;
     if (originalUrl.startsWith('https://www.amazon.co.jp/')) {
-      const dps = originalUrl.match('dp/.*/');
+      const dps = originalUrl.match('dp/[A-Za-z0-9]+/');
       if (!dps || dps.length != 1) {
         return;
       }
