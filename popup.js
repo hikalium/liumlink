@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const originalUrl = tabs[0].url;
     const tabId = tabs[0].id;
-    if (originalUrl.startsWith('https://www.amazon.co.jp/')) {
+    if (originalUrl.startsWith('https://www.amazon.co.jp/dp')) {
       const dps = originalUrl.match('dp/[A-Za-z0-9]+/');
       if (!dps || dps.length != 1) {
         return;
@@ -25,6 +25,13 @@ document.addEventListener('DOMContentLoaded', function() {
       copyToClipboard(url, 'text/plain;charset=UTF-8');
       statusDiv.innerText = 'Copied!';
       urlDiv.innerText = url;
+    }
+    if (originalUrl.startsWith('https://www.amazon.co.jp/s')) {
+      chrome.tabs.update(tabId, {
+        // Include only sold by && shipped by Amazon
+        url: originalUrl + "&emi=AN1VRQENFRJN5",
+      })
+      statusDiv.innerText = 'OK';
     }
     if (originalUrl.startsWith(
             'https://iss.ndl.go.jp/api/sru?operation=searchRetrieve&query=isbn=')) {
