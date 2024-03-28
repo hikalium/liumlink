@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const benchResultDiv = document.getElementById('benchResultDiv');
   const tabsPerIterInput = document.getElementById('tabsPerIterInput');
   const iterCountInput = document.getElementById('iterCountInput');
+  const repeatCountInput = document.getElementById('repeatCountInput');
   let runCount = 0;
   const runBench = async function() {
     runCount += 1;
@@ -60,6 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
       await chrome.tabs.remove(tabId);
     }
   };
-  benchButton.addEventListener('click', runBench);
+  benchButton.addEventListener('click', async () => {
+    const repeatCount = parseInt(repeatCountInput.value);
+    for (let i = 0; i < repeatCount; i++) {
+      await runBench();
+    }
+  });
 });
 
