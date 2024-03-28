@@ -8,6 +8,10 @@ function copyToClipboard(str, mimeType) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+  const benchButton = document.getElementById('benchButton');
+  benchButton.addEventListener('click', function() {
+      chrome.tabs.create({url: 'bench.html'});
+  });
   const statusDiv = document.getElementById('statusDiv');
   const urlDiv = document.getElementById('urlDiv');
   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
@@ -29,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (originalUrl.startsWith('https://www.amazon.co.jp/s')) {
       chrome.tabs.update(tabId, {
         // Include only sold by && shipped by Amazon
-        url: originalUrl + "&emi=AN1VRQENFRJN5",
+        url: originalUrl + '&emi=AN1VRQENFRJN5',
       })
       statusDiv.innerText = 'OK';
     }
@@ -67,9 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 urlDiv.appendChild(div);
                 div.addEventListener('click', () => {
                   copyToClipboard(text, 'text/plain;charset=UTF-8');
-                  div.style = "background-color: red;";
+                  div.style = 'background-color: red;';
                   setTimeout(() => {
-                    div.style = "background-color: none;";
+                    div.style = 'background-color: none;';
                     chrome.tabs.remove(tabId);
                   }, 1000);
                 });
