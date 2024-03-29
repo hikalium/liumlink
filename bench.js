@@ -29,18 +29,26 @@ async function getInnerTextOfUrl(url) {
   return text;
 }
 
-async function takeLog(benchResultDiv) {
-  const messages = await getInnerTextOfUrl('file:///var/log/messages');
-  console.log(messages)
-  const biosInfo = await getInnerTextOfUrl('file:///var/log/bios_info.txt');
-  console.log(biosInfo)
-  const biosInfoLines = biosInfo.split('\n');
-  const hwid = biosInfoLines.filter((s) => s.startsWith('hwid'))[0]
+function extractBiosInfoAttr(biosInfoLines, key) {
+  return biosInfoLines.filter((s) => s.startsWith(key))[0]
                    .split(' = ')[1]
                    .split('#')[0]
                    .trim();
-  console.log(hwid);
+}
+
+async function takeLog(benchResultDiv) {
+  const messages = await getInnerTextOfUrl('file:///var/log/messages.5');
+  const messagesLines = messages.split('\n');
+  console.log(messagesLines.filter((s) => s.indexOf("Linux") != -1));
+
+
+  const biosInfo = await getInnerTextOfUrl('file:///var/log/bios_info.txt');
+  //console.log(biosInfo);
+  const biosInfoLines = biosInfo.split('\n');
+  const hwid = extractBiosInfoAttr(biosInfoLines, "hwid");
   benchResultDiv.innerText += `hwid: ${hwid}\n`;
+  const fwid = extractBiosInfoAttr(biosInfoLines, "fwid");
+  benchResultDiv.innerText += `fwid: ${fwid}\n`;
 }
 
 
