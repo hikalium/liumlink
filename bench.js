@@ -37,11 +37,6 @@ function extractBiosInfoAttr(biosInfoLines, key) {
 }
 
 async function takeLog(benchResultDiv) {
-  const messages = await getInnerTextOfUrl('file:///var/log/messages.5');
-  const messagesLines = messages.split('\n');
-  console.log(messagesLines.filter((s) => s.indexOf("Linux") != -1));
-
-
   const biosInfo = await getInnerTextOfUrl('file:///var/log/bios_info.txt');
   //console.log(biosInfo);
   const biosInfoLines = biosInfo.split('\n');
