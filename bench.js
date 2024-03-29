@@ -2,6 +2,48 @@ function sleep(time) {
   return new Promise((resolve) => {setTimeout(resolve, time)})
 }
 
+function getInnerTextOfTab(tabId) {
+  return new Promise((resolve) => {
+    chrome.scripting.executeScript(
+        {
+          func: () => {
+            return document.body.innerText;
+          },
+          target: {
+            tabId: tabId,
+          }
+        },
+        (injectionResults) => {
+          for (const frameResult of injectionResults) {
+            const result = frameResult.result;
+            resolve(result);
+          }
+        });
+  });
+}
+
+async function getInnerTextOfUrl(url) {
+  const tab = await chrome.tabs.create({url: url, active: false});
+  const text = await getInnerTextOfTab(tab.id);
+  await chrome.tabs.remove(tab.id);
+  return text;
+}
+
+async function takeLog(benchResultDiv) {
+  const messages = await getInnerTextOfUrl('file:///var/log/messages');
+  console.log(messages)
+  const biosInfo = await getInnerTextOfUrl('file:///var/log/bios_info.txt');
+  console.log(biosInfo)
+  const biosInfoLines = biosInfo.split('\n');
+  const hwid = biosInfoLines.filter((s) => s.startsWith('hwid'))[0]
+                   .split(' = ')[1]
+                   .split('#')[0]
+                   .trim();
+  console.log(hwid);
+  benchResultDiv.innerText += `hwid: ${hwid}\n`;
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
   const chart = bb.generate({
     bindto: '#chart',
@@ -14,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
       y: {label: 'Time took (ms)'},
     }
   });
+  const takeLogButton = document.getElementById('takeLogButton');
   const benchButton = document.getElementById('benchButton');
   const benchResultDiv = document.getElementById('benchResultDiv');
   const tabsPerIterInput = document.getElementById('tabsPerIterInput');
@@ -66,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
     for (let i = 0; i < repeatCount; i++) {
       await runBench();
     }
+  });
+  takeLogButton.addEventListener('click', async () => {
+    await takeLog(benchResultDiv);
   });
 });
 
