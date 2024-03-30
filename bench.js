@@ -50,6 +50,7 @@ async function takeLog(benchResultDiv) {
 document.addEventListener('DOMContentLoaded', function() {
   const chart = bb.generate({
     bindto: '#chart',
+    legend: {show: false},
     data: {
       type: 'scatter',
       json: {},
@@ -61,7 +62,22 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   const histChart = bb.generate({
     bindto: '#histChart',
+    legend: {show: false},
     title: {text: 'Time distribution'},
+    data: {
+      type: 'step',
+      json: {},
+    },
+    axis: {
+      x: {label: 'Time range (ms, left inclusive)'},
+      y: {label: 'Frequency'},
+    },
+    line: {step: {type: 'step-after', tooltipMatch: true}},
+  });
+  const totalHistChart = bb.generate({
+    bindto: '#totalHistChart',
+    legend: {show: false},
+    title: {text: 'Time distribution (All data)'},
     data: {
       type: 'step',
       json: {},
@@ -78,7 +94,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const tabsPerIterInput = document.getElementById('tabsPerIterInput');
   const iterCountInput = document.getElementById('iterCountInput');
   const repeatCountInput = document.getElementById('repeatCountInput');
+  const histogramStepWidth = 10;
+  const histogramNumSteps = 30;
+  const totalHistogram = [];
+  const totalHistogramXList = [];
   let runCount = 0;
+  for (let i = 0; i < histogramNumSteps; i++) {
+    totalHistogram[i] = 0;
+    totalHistogramXList[i] = i * histogramStepWidth;
+  }
   const runBench = async function() {
     runCount += 1;
     const benchResultList = [];
@@ -119,8 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
       chart.load({json: data, xs: xs});
     }
     {
-      const histogramStepWidth = 20;
-      const histogramNumSteps = 30;
       const histogram = [];
       const histogramXList = [];
       for (let i = 0; i < histogramNumSteps; i++) {
@@ -131,14 +153,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const i = Math.floor(t / histogramStepWidth);
         if (i < histogramNumSteps) {
           histogram[i]++;
+          totalHistogram[i]++;
         }
       }
-      const data = {};
-      data[key] = histogram;
-      data[xKey] = histogramXList;
-      const xs = {};
-      xs[key] = xKey;
-      histChart.load({json: data, xs: xs});
+      {
+        const data = {};
+        data[key] = histogram;
+        data[xKey] = histogramXList;
+        const xs = {};
+        xs[key] = xKey;
+        histChart.load({json: data, xs: xs});
+      }
+      {
+        const data = {};
+        data['total'] = totalHistogram;
+        data['xtotal'] = totalHistogramXList;
+        const xs = {};
+        xs['total'] = 'xtotal';
+        totalHistChart.load({json: data, xs: xs});
+      }
     }
     for (const tabId of tabIdToBeRemovedList) {
       await chrome.tabs.remove(tabId);
