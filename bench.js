@@ -59,6 +59,28 @@ document.addEventListener('DOMContentLoaded', function() {
       y: {label: 'Time took (ms)'},
     }
   });
+  const histChart = bb.generate({
+    bindto: '#histChart',
+      title: {
+    text: "step-after"
+  },
+  data: {
+    columns: [
+	["data1", 300, 350, 300, 20, 240, 100],
+	["data2", 130, 100, 140, 200, 150, 50]
+    ],
+    types: {
+      data1: "step", // for ESM specify as: step()
+      data2: "area-step", // for ESM specify as: areaStep()
+    }
+  },
+  line: {
+    step: {
+      type: "step-after",
+      tooltipMatch: true
+    }
+  },
+  });
   const takeLogButton = document.getElementById('takeLogButton');
   const benchButton = document.getElementById('benchButton');
   const benchResultDiv = document.getElementById('benchResultDiv');
@@ -94,15 +116,15 @@ document.addEventListener('DOMContentLoaded', function() {
       const diff = t1 - t0;
       benchResultList.push(diff);
       benchResultXList.push((i + 1) * tabsPerIter);
-      const key = `#${runCount}: Open ${tabsPerIter} tabs once * ${iterCount}`;
-      const xKey = 'x_' + key;
-      const data = {};
-      data[key] = benchResultList;
-      data[xKey] = benchResultXList;
-      const xs = {};
-      xs[key] = xKey;
-      chart.load({json: data, xs: xs});
     }
+    const key = `#${runCount}: Open ${tabsPerIter} tabs once * ${iterCount}`;
+    const xKey = 'x_' + key;
+    const data = {};
+    data[key] = benchResultList;
+    data[xKey] = benchResultXList;
+    const xs = {};
+    xs[key] = xKey;
+    chart.load({json: data, xs: xs});
     for (const tabId of tabIdToBeRemovedList) {
       await chrome.tabs.remove(tabId);
     }

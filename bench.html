@@ -2,25 +2,52 @@
 <html>
   <head>
     <style>
+body {
+  box-sizing: border-box;
+  padding-left: 16px;
+  width: 100%;
+  margin: 0px;
+}
+.input-label {
+  display: inline-block;
+  width: 8em;
+}
+.chart-wrapper {
+  height: 360px;
+  width: calc(100% - 32px - 16px);
+  background-color: rgba(220, 220, 220, 0.5);
+  margin: 0px;
+  padding: 8px;
+}
     </style>
   </head>
   <body>
     <h3>Bench</h3>
     <div>
-      tabs per run:<input type="number" id="tabsPerIterInput" value="50"></input>
+      <div class="input-label">tabs per run</div>
+      <input type="number" id="tabsPerIterInput" value="4"></input>
     </div>
     <div>
-      iter count:<input type="number" id="iterCountInput" value="5"></input>
+      <div class="input-label">iter count</div>
+      <input type="number" id="iterCountInput" value="25"></input>
     </div>
     <div>
-      repeat count:<input type="number" id="repeatCountInput" value="10"></input>
+      <div class="input-label">repeat count</div>
+      <input type="number" id="repeatCountInput" value="10"></input>
     </div>
     <div>
       <button id="benchButton">Bench!</button>
       <button id="takeLogButton">Take log</button>
     </div>
-    <div id="benchResultDiv"></div>
-    <div id="chart"></div>
+    <div>
+      <div id="benchResultDiv"></div>
+      <div class="chart-wrapper">
+        <div id="chart"></div>
+      </div>
+      <div class="chart-wrapper">
+        <div id="histChart"></div>
+      </div>
+    </div>
   </body>
   <script src="./third_party/d3.min.js"></script>
   <script src="./third_party/billboard.js"></script>
