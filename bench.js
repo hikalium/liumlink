@@ -31,18 +31,18 @@ async function getInnerTextOfUrl(url) {
 
 function extractBiosInfoAttr(biosInfoLines, key) {
   return biosInfoLines.filter((s) => s.startsWith(key))[0]
-                   .split(' = ')[1]
-                   .split('#')[0]
-                   .trim();
+      .split(' = ')[1]
+      .split('#')[0]
+      .trim();
 }
 
 async function takeLog(benchResultDiv) {
   const biosInfo = await getInnerTextOfUrl('file:///var/log/bios_info.txt');
-  //console.log(biosInfo);
+  // console.log(biosInfo);
   const biosInfoLines = biosInfo.split('\n');
-  const hwid = extractBiosInfoAttr(biosInfoLines, "hwid");
+  const hwid = extractBiosInfoAttr(biosInfoLines, 'hwid');
   benchResultDiv.innerText += `hwid: ${hwid}\n`;
-  const fwid = extractBiosInfoAttr(biosInfoLines, "fwid");
+  const fwid = extractBiosInfoAttr(biosInfoLines, 'fwid');
   benchResultDiv.innerText += `fwid: ${fwid}\n`;
 }
 
@@ -61,25 +61,16 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   const histChart = bb.generate({
     bindto: '#histChart',
-      title: {
-    text: "step-after"
-  },
-  data: {
-    columns: [
-	["data1", 300, 350, 300, 20, 240, 100],
-	["data2", 130, 100, 140, 200, 150, 50]
-    ],
-    types: {
-      data1: "step", // for ESM specify as: step()
-      data2: "area-step", // for ESM specify as: areaStep()
-    }
-  },
-  line: {
-    step: {
-      type: "step-after",
-      tooltipMatch: true
-    }
-  },
+    title: {text: 'Time distribution'},
+    data: {
+      type: 'step',
+      json: {},
+    },
+    axis: {
+      x: {label: 'Time range (ms, left inclusive)'},
+      y: {label: 'Frequency'},
+    },
+    line: {step: {type: 'step-after', tooltipMatch: true}},
   });
   const takeLogButton = document.getElementById('takeLogButton');
   const benchButton = document.getElementById('benchButton');
@@ -119,12 +110,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const key = `#${runCount}: Open ${tabsPerIter} tabs once * ${iterCount}`;
     const xKey = 'x_' + key;
-    const data = {};
-    data[key] = benchResultList;
-    data[xKey] = benchResultXList;
-    const xs = {};
-    xs[key] = xKey;
-    chart.load({json: data, xs: xs});
+    {
+      const data = {};
+      data[key] = benchResultList;
+      data[xKey] = benchResultXList;
+      const xs = {};
+      xs[key] = xKey;
+      chart.load({json: data, xs: xs});
+    }
+    {
+      const histogramStepWidth = 20;
+      const histogramNumSteps = 30;
+      const histogram = [];
+      const histogramXList = [];
+      for (let i = 0; i < histogramNumSteps; i++) {
+        histogram[i] = 0;
+        histogramXList[i] = i * histogramStepWidth;
+      }
+      for (const t of benchResultList) {
+        const i = Math.floor(t / histogramStepWidth);
+        if (i < histogramNumSteps) {
+          histogram[i]++;
+        }
+      }
+      const data = {};
+      data[key] = histogram;
+      data[xKey] = histogramXList;
+      const xs = {};
+      xs[key] = xKey;
+      histChart.load({json: data, xs: xs});
+    }
     for (const tabId of tabIdToBeRemovedList) {
       await chrome.tabs.remove(tabId);
     }
